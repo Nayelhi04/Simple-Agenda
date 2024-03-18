@@ -1,87 +1,114 @@
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Scanner;
 
 public class SimpleAgenda {
-    private String[] contactos;
-    private int nextIndex;
-
     public SimpleAgenda() {
-        contactos = new String[10];
-        nextIndex = 0;
+        String[] contactos = new String[10];
+        int nextIndex = 0;
     }
 
-    public void agregarContacto() {
+    public static void agregarContacto() {
         Scanner input = new Scanner(System.in);
         System.out.println("Ingrese un contacto a agregar:");
         String nombre = input.nextLine();
 
-        if (contains(nombre)) {
-            System.out.println("Ya se ha agregado anteriormente.");
+        if (nombre.length() > 4 && nombre.length() < 8) {
+            System.out.println("Contacto agregado con éxito.");
+        } else if (nombre.length() >= 8 && nombre.length() <= 30) {
+            System.out.println("Agregado, contiene entre 8-30 caracteres");
         } else {
-            contactos[nextIndex] = nombre;
-            nextIndex++;
-            System.out.println("Agregado satisfactoriamente.");
+            System.out.println("Nombre muy largo");
         }
     }
 
-    public boolean contains(String nombre) {
-        for (String contacto : contactos) {
-            if (contacto != null && contacto.equals(nombre)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public void removerContacto() {
-        Scanner input = new Scanner(System.in);
-        System.out.println("Ingrese un contacto a remover:");
-        String nombre = input.nextLine();
-
-        int index = -1;
-        for (int i = 0; i < nextIndex; i++) {
-            if (contactos[i] != null && contactos[i].equals(nombre)) {
-                index = i;
-                break;
-            }
-        }
-
-        if (index != -1) {
-            contactos[index] = null;
-            System.out.printf("El contacto '%s' fue removido exitosamente!%n", nombre);
+    public static void removerContacto(int id) {
+        if (id >= 1000 && id <= 9999) {
+            System.out.println("Verificando contacto a eliminar...");
         } else {
-            System.out.println("No existe tal contacto.");
+            System.out.println("ID inválido");
         }
     }
 
-    public void mostrarContacto() {
-        Scanner input = new Scanner(System.in);
-        System.out.println("Ingrese un contacto a mostrar:");
-        String nombre = input.nextLine();
-
-        for (String contacto : contactos) {
-            if (contacto != null && contacto.equals(nombre)) {
-                System.out.printf("El contacto '%s' existe.%n", nombre);
-                return;
-            }
-        }
-
-        System.out.println("No existen registros de este contacto.");
+    public static String actualizarContacto() {
+        return actualizarContacto(0);
     }
 
-    public void mostrarContactos() {
+    public static String actualizarContacto(int id) {
+        return "N/A";
+    }
+
+    public static void mostrarContactos() {
         System.out.println("Mostrando contactos...");
-        for (String contacto : contactos) {
-            if (contacto != null) {
-                System.out.println(contacto);
+        try {
+            File file = new File("contactos.txt");
+            Scanner scanner = new Scanner(file);
+// Saltar la primera línea que contiene los encabezados
+            if (scanner.hasNextLine()) {
+                scanner.nextLine();
             }
+            while (scanner.hasNextLine()) {
+                String line = scanner.nextLine();
+                System.out.println(line);
+            }
+            scanner.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void mostrarContacto() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Ingrese nombre a consultar:");
+        String nombre = scanner.nextLine();
+        try {
+            File file = new File("contactos.txt");
+            Scanner fileScanner = new Scanner(file);
+            boolean encontrado = false;
+// Saltar la primera línea que contiene los encabezados
+            if (fileScanner.hasNextLine()) {
+                fileScanner.nextLine();
+            }
+            while (fileScanner.hasNextLine()) {
+                String line = fileScanner.nextLine();
+                String[] partes = line.split(",");
+                if (partes[0].equals(nombre)) {
+                    System.out.println("El contacto " + nombre + " existe.");
+                    encontrado = true;
+                    break;
+                }
+            }
+            if (!encontrado) {
+                System.out.println("No existen registros de este contacto.");
+            }
+            fileScanner.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void generarArchivo() {
+        try {
+            File archivo = new File("contactos.txt");
+            archivo.createNewFile();
+            FileWriter escritor = new FileWriter(archivo);
+            escritor.write("contacto,telefono\n" +
+                    "Adan,8098551212\n" +
+                    "Enmanuel,8294118787\n" +
+                    "Raider,8097410032\n" +
+                    "Roger,8095554141\n");
+            escritor.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     public static void main(String[] args) {
-        SimpleAgenda agenda = new SimpleAgenda();
-        agenda.agregarContacto();
-        agenda.removerContacto();
-        agenda.mostrarContacto();
-        agenda.mostrarContactos();
+        agregarContacto();
+        removerContacto(1234);
+        mostrarContactos();
+        mostrarContacto();
+        generarArchivo(); // Agregado para crear el archivo
     }
 }
